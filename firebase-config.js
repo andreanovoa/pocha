@@ -11,7 +11,7 @@
  * the scoreboard works without accounts.
  */
 window.POCHA_FIREBASE = {
-  apiKey: 'AIzaSyC4u2LeLoNJG4-VBKYdeNphyF8eIR-r2cE',
+  apiKey: 'AIzaSyBSj1TectSjrGPFe3OUkvKpVx2teqzKMYI',
   // el inicio de sesión vuelve a este dominio: la web andreanovoa.github.io sirve /__/auth/
   // sign-in comes back to this domain: the andreanovoa.github.io site serves /__/auth/
   authDomain: 'andreanovoa.github.io',
