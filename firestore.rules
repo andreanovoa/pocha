@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// Pocha: cada cuenta lee y escribe sólo sus propias partidas.
+// Pocha: each account only reads and writes its own games.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/games/{gameId} {
+      function owner() {
+        return request.auth != null && request.auth.uid == uid;
+      }
+      function validGame() {
+        let g = request.resource.data;
+        return g.keys().hasOnly(['startedAt', 'finishedAt', 'finished', 'players', 'firstDealer',
+                                 'repeatMiddle', 'rounds', 'results', 'savedAt'])
+          && g.players is list && g.players.size() >= 3 && g.players.size() <= 10
+          && g.rounds is list && g.rounds.size() <= 200
+          && g.results is list && g.results.size() <= g.rounds.size()
+          && g.finished is bool;
+      }
+
+      allow read, delete: if owner();
+      allow create, update: if owner() && validGame();
+    }
+  }
+}

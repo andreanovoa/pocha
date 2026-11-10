@@ -1,0 +1,551 @@
+/* Pocha — scoreboard app */
+
+/* Card-table palette, matching the header: felt green, cream and gold.
+   This file is only loaded on the Pocha page, so the rest of the site keeps its own colours.
+   The selectors beat the theme's :root and .dark rules, which sit on both <html> and <body>. */
+html:root, html:root body {
+  --theme: #f5f0e1;            /* page: cream table */
+  --entry: #fffdf6;            /* cards */
+  --code-bg: #efe7d0;          /* rows, inputs, chips */
+  --border: #d9cca8;
+  --border-light: rgba(167, 116, 18, 0.18);
+  --content-mid: #5a6b55;
+  --content: #1d2b22;
+  --secondary: #5a6b55;
+  --primary: #1f5c43;          /* felt green */
+  --tertiary: #a77412;         /* old gold */
+  --pocha-ok: #2e7d32;         /* bastos */
+  --pocha-bad: #c8102e;        /* copas */
+  --pocha-warn: #b7791f;
+}
+html.dark:root, html.dark:root body, html:root body.dark {
+  --theme: #0e261c;            /* page: felt at night */
+  --entry: #143829;
+  --code-bg: #1b4534;
+  --border: #2d5e48;
+  --border-light: rgba(240, 199, 94, 0.14);
+  --content-mid: #a9bf9c;
+  --content: #efe6cc;          /* cream */
+  --secondary: #a9bf9c;
+  --primary: #e3b23c;          /* gold */
+  --tertiary: #f0c75e;
+  --pocha-ok: #7cc464;
+  --pocha-bad: #ef5a6f;
+  --pocha-warn: #f0a43c;
+}
+html:root body {
+  background-color: var(--theme);
+  background-image: radial-gradient(ellipse at 50% -10%, rgba(31, 92, 67, 0.10), transparent 60%);
+  background-attachment: fixed;
+}
+html.dark:root body {
+  background-image: radial-gradient(ellipse at 50% -10%, rgba(227, 178, 60, 0.07), transparent 60%);
+}
+
+.pocha {
+  --pocha-gap: 0.75rem;
+  --pocha-radius: 12px;
+  font-variant-numeric: tabular-nums;
+  margin-top: 1rem;
+}
+
+.pocha *, .pocha *::before, .pocha *::after { box-sizing: border-box; }
+
+.pocha .card {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: var(--pocha-radius);
+  padding: 1rem 1.1rem;
+  margin-bottom: var(--pocha-gap);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.pocha h2.card-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.pocha .row { display: flex; flex-wrap: wrap; gap: var(--pocha-gap); align-items: flex-end; }
+.pocha .field { display: flex; flex-direction: column; gap: 0.25rem; }
+.pocha .field > label { font-size: 0.8rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+.pocha .hint { font-size: 0.82rem; color: var(--secondary); margin: 0.4rem 0 0; }
+
+.pocha input[type=text],
+.pocha input[type=number],
+.pocha input[type=url],
+.pocha input[type=email],
+.pocha select {
+  background: var(--code-bg);
+  color: var(--content);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  font-size: 0.95rem;
+  min-width: 0;
+}
+.pocha input:focus, .pocha select:focus { outline: 2px solid var(--tertiary); outline-offset: 1px; }
+.pocha input[type=number] { width: 4.5rem; text-align: center; }
+.pocha input[type=checkbox] { width: 1.1rem; height: 1.1rem; accent-color: var(--tertiary); }
+
+.pocha .switch { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; padding-bottom: 0.45rem; }
+
+.pocha button {
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  background: var(--code-bg);
+  color: var(--content);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.pocha button:hover:not(:disabled) { box-shadow: 0 0 0 2px var(--tertiary); }
+.pocha button:active:not(:disabled) { transform: translateY(1px); }
+.pocha button:disabled { opacity: 0.45; cursor: not-allowed; }
+.pocha button.primary { background: var(--primary); color: var(--theme); border-color: var(--primary); }
+.pocha button.ghost { background: transparent; }
+.pocha .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+
+/* Players setup */
+.pocha .players { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.6rem; }
+.pocha .player-slot { display: flex; align-items: center; gap: 0.5rem; }
+.pocha .player-slot .idx {
+  flex: 0 0 1.7rem; height: 1.7rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--code-bg); color: var(--secondary);
+  font-size: 0.8rem; font-weight: 700;
+}
+.pocha .player-slot input { flex: 1 1 auto; width: 100%; }
+
+.pocha .roster { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.pocha .roster button {
+  padding: 0.2rem 0.6rem; font-size: 0.82rem; font-weight: 500;
+  border-radius: 999px; color: var(--secondary);
+}
+
+/* Round panel */
+.pocha .round-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem 1.2rem; margin-bottom: 0.8rem; }
+.pocha .round-head .big { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+.pocha .round-head .meta { font-size: 0.9rem; color: var(--secondary); }
+.pocha .chip {
+  display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+  background: var(--code-bg); border: 1px solid var(--border);
+  font-size: 0.8rem; color: var(--secondary);
+}
+.pocha .chip.dealer { color: var(--tertiary); border-color: var(--tertiary); }
+
+.pocha .bids { display: grid; gap: 0.45rem; }
+.pocha .bid-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: var(--code-bg);
+}
+.pocha .bid-row.is-dealer { box-shadow: inset 3px 0 0 var(--tertiary); }
+.pocha .bid-row .who { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pocha .bid-row .who small { display: block; font-weight: 400; color: var(--secondary); font-size: 0.75rem; }
+.pocha .bids-head {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 0.6rem;
+  padding: 0 0.5rem; font-size: 0.75rem; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--secondary);
+}
+.pocha .bids-head span:not(:first-child) { width: 4.5rem; text-align: center; }
+
+.pocha .tally { margin-top: 0.8rem; font-size: 0.9rem; }
+.pocha .tally.ok { color: var(--pocha-ok); }
+.pocha .tally.bad { color: var(--pocha-bad); }
+.pocha .tally.warn { color: var(--pocha-warn); }
+
+/* Scoreboard */
+.pocha .standings { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.5rem; }
+.pocha .standing {
+  display: flex; flex-direction: column; gap: 0.3rem;
+  padding: 0.55rem 0.7rem; border-radius: 8px; background: var(--code-bg);
+  border-left: 3px solid transparent;
+  min-width: 0;
+}
+.pocha .standing.lead { border-left-color: var(--tertiary); }
+.pocha .standing-head { display: flex; align-items: baseline; gap: 0.4rem; min-width: 0; }
+.pocha .standing-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.pocha .standing .nm {
+  font-weight: 600; flex: 1 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pocha .standing .pos {
+  flex: 0 0 auto; color: var(--secondary); font-size: 0.75rem; font-weight: 700;
+}
+.pocha .standing .pos::after { content: '.'; }
+.pocha .standing .pts { font-size: 1.25rem; line-height: 1.1; }
+.pocha .standing .pts-unit { font-size: 0.75rem; font-weight: 400; color: var(--secondary); }
+.pocha .standing .hits { font-size: 0.75rem; color: var(--secondary); text-align: right; }
+.pocha .standing .delta { flex: 0 0 auto; font-size: 0.78rem; font-weight: 700; }
+.pocha .standing .delta.up { color: var(--pocha-ok); }
+.pocha .standing .delta.down { color: var(--pocha-bad); }
+
+/* History table */
+.pocha .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.pocha table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+.pocha th, .pocha td { padding: 0.3rem 0.5rem; text-align: center; border-bottom: 1px solid var(--border); }
+.pocha thead th { position: sticky; top: 0; background: var(--entry); color: var(--secondary); font-size: 0.75rem; text-transform: uppercase; }
+.pocha tbody tr:hover { background: var(--code-bg); }
+.pocha td.cards { font-weight: 700; color: var(--secondary); }
+/* la misma franja que marca al repartidor en el panel de la ronda */
+.pocha td.deals { color: var(--tertiary); box-shadow: inset 2px 0 0 var(--tertiary); }
+.pocha td.hit { color: var(--pocha-ok); }
+.pocha td.miss { color: var(--pocha-bad); }
+.pocha td.total { font-weight: 700; }
+.pocha th.group { border-left: 1px solid var(--border); }
+.pocha td.group { border-left: 1px solid var(--border); }
+
+.pocha .banner {
+  border-radius: var(--pocha-radius); padding: 0.7rem 1rem; margin-bottom: var(--pocha-gap);
+  font-size: 0.9rem; border: 1px solid var(--border); background: var(--code-bg);
+}
+.pocha .banner.ok { border-color: var(--pocha-ok); color: var(--pocha-ok); }
+.pocha .banner.bad { border-color: var(--pocha-bad); color: var(--pocha-bad); }
+
+.pocha .winner { text-align: center; padding: 1.2rem 1rem; }
+.pocha .winner .trophy { font-size: 2.2rem; }
+.pocha .winner .nm { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+
+.pocha details.sync summary { cursor: pointer; color: var(--secondary); font-size: 0.9rem; }
+.pocha details.sync .field input[type=url] { width: min(100%, 420px); }
+
+@media (max-width: 480px) {
+  .pocha .card { padding: 0.8rem; }
+  .pocha .players { grid-template-columns: 1fr; }
+  .pocha input[type=number] { width: 3.6rem; }
+  .pocha .bids-head span:not(:first-child) { width: 3.6rem; }
+}
+
+/* Seating order */
+.pocha .seat-hint { margin-bottom: 0; }
+.pocha .seat-order {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem;
+  margin: 0.6rem 0 0; font-size: 0.85rem;
+}
+.pocha .seat-order .seat-label {
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: 0.72rem; color: var(--secondary); margin-right: 0.3rem;
+}
+.pocha .seat-order .seat-name {
+  padding: 0.1rem 0.5rem; border-radius: 999px;
+  background: var(--code-bg); border: 1px solid var(--border);
+}
+.pocha .seat-order .seat-arrow { color: var(--tertiary); }
+
+/* Dealer draw */
+.pocha .dealer-pick { display: flex; align-items: stretch; gap: 0.35rem; }
+.pocha .dealer-pick select { flex: 1 1 auto; }
+.pocha button.dice {
+  padding: 0.35rem 0.6rem;
+  font-size: 1.05rem;
+  line-height: 1;
+  border-radius: 8px;
+}
+.pocha button.dice.rolling { animation: pocha-roll 0.45s linear infinite; }
+.pocha .field.drawn select {
+  border-color: var(--tertiary);
+  box-shadow: 0 0 0 2px var(--tertiary);
+}
+@keyframes pocha-roll {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pocha button.dice.rolling { animation: none; }
+}
+
+/* Language switch */
+.pocha .lang-bar { display: flex; justify-content: flex-end; gap: 0.3rem; margin-bottom: 0.5rem; }
+.pocha button.lang {
+  padding: 0.2rem 0.7rem; font-size: 0.82rem; font-weight: 500;
+  border-radius: 999px; color: var(--secondary); background: transparent;
+}
+.pocha button.lang.on { color: var(--theme); background: var(--primary); border-color: var(--primary); }
+
+/* Documentation */
+.pocha .docs { margin-top: 2rem; }
+.pocha .docs h2 { font-size: 1.3rem; margin: 1.8rem 0 0.6rem; }
+.pocha .docs p { margin: 0 0 0.9rem; line-height: 1.7; }
+.pocha .docs ol { margin: 0 0 0.9rem 1.2rem; line-height: 1.7; }
+.pocha .docs li { margin-bottom: 0.3rem; }
+.pocha .docs code {
+  background: var(--code-bg); border-radius: 4px; padding: 0.1rem 0.35rem; font-size: 0.9em;
+}
+.pocha table.docs-table { margin-bottom: 1rem; }
+.pocha table.docs-table td { text-align: left; }
+.pocha table.docs-table td:last-child { white-space: nowrap; }
+.pocha pre.docs-code {
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--pocha-radius);
+  padding: 0.9rem 1rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.55; margin-bottom: 1rem;
+}
+.pocha pre.docs-code code { background: none; padding: 0; }
+
+/* Layout corrections for wide screens and small screens */
+
+/* keep the bid boxes next to the names instead of at the far edge */
+.pocha .bids, .pocha .bids-head { max-width: 34rem; }
+
+/* the score and its unit stay on one line; the hits wrap below if they must */
+.pocha .standing-foot { flex-wrap: wrap; }
+.pocha .standing .pts { white-space: nowrap; }
+.pocha .standing .hits { min-width: 0; flex: 1 1 auto; }
+
+@media (min-width: 700px) {
+  .pocha .standings { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+}
+
+/* phones: tighter rows, larger touch targets, no cramped columns */
+@media (max-width: 560px) {
+  .pocha .round-head { gap: 0.35rem 0.8rem; }
+  .pocha .round-head .big { font-size: 1.35rem; }
+  .pocha .bid-row { gap: 0.4rem; padding: 0.3rem 0.4rem; }
+  .pocha input[type=number] { width: 3.7rem; padding: 0.45rem 0.25rem; }
+  .pocha .bids-head { font-size: 0.65rem; }
+  .pocha .bids-head span:not(:first-child) { width: 3.7rem; white-space: nowrap; }
+  .pocha .actions button { flex: 1 1 auto; padding: 0.6rem 0.8rem; }
+  .pocha .docs h2 { font-size: 1.15rem; }
+  .pocha pre.docs-code { font-size: 0.72rem; }
+}
+
+/* Subpage switch */
+.pocha .top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.7rem;
+}
+.pocha .top-bar .lang-bar { margin-bottom: 0; }
+.pocha .tabs { display: flex; flex-wrap: wrap; gap: 0.2rem; }
+.pocha a.tab {
+  padding: 0.35rem 0.9rem; border-radius: 999px;
+  font-size: 0.9rem; font-weight: 600; text-decoration: none;
+  color: var(--secondary); border: 1px solid transparent;
+}
+.pocha a.tab:hover { color: var(--primary); border-color: var(--border); }
+.pocha a.tab.on { color: var(--primary); border-color: var(--border); background: var(--code-bg); }
+.pocha .docs > h2:first-child { margin-top: 0.5rem; }
+
+/* Round alerts */
+.pocha .round-alert { margin-top: 0.5rem; display: grid; gap: 0.4rem; }
+.pocha .round-alert span {
+  display: block; padding: 0.5rem 0.7rem; border-radius: 8px;
+  font-size: 0.88rem; line-height: 1.45;
+  border: 1px solid currentColor; background: var(--code-bg);
+}
+.pocha .round-alert span.bad { color: var(--pocha-bad); }
+.pocha .round-alert span.warn { color: var(--pocha-warn); }
+
+/* Full table */
+.pocha a.button-link {
+  display: inline-block; text-decoration: none;
+  font: inherit; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.5rem 1rem; background: var(--code-bg); color: var(--content);
+}
+.pocha a.button-link:hover { box-shadow: 0 0 0 2px var(--tertiary); }
+.pocha a.button-link.primary { background: var(--primary); color: var(--theme); border-color: var(--primary); }
+
+.pocha table.full-table { font-size: 0.82rem; }
+.pocha table.full-table .cards-col {
+  position: sticky; left: 0; z-index: 1;
+  background: var(--entry); font-weight: 700; color: var(--secondary);
+}
+.pocha table.full-table tbody tr:hover .cards-col { background: var(--code-bg); }
+.pocha table.full-table tr.pending td { color: var(--secondary); opacity: 0.55; }
+.pocha table.full-table tfoot td {
+  border-top: 2px solid var(--border); font-size: 1rem; padding-top: 0.5rem;
+}
+.pocha table.full-table tfoot .cards-col { font-size: 0.75rem; text-transform: uppercase; }
+
+@media print {
+  .pocha .top-bar, .pocha .actions, .pocha .hint { display: none; }
+  .pocha .card { border: none; box-shadow: none; padding: 0; }
+  .pocha .table-wrap { overflow: visible; }
+  .pocha table.full-table { font-size: 9pt; }
+}
+
+/* Card ranking */
+.pocha .rank-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem;
+  margin: 0 0 1rem;
+}
+.pocha .rank-row .rank {
+  padding: 0.3rem 0.65rem; border-radius: 8px;
+  background: var(--code-bg); border: 1px solid var(--border);
+  font-size: 0.9rem; font-weight: 600; white-space: nowrap;
+}
+.pocha .rank-row .rank.top { border-color: var(--tertiary); color: var(--tertiary); }
+.pocha .rank-row .rank-arrow { color: var(--secondary); font-size: 0.8rem; }
+
+/* Accounts and stats */
+.pocha .cloud-save { margin-top: 0.4rem; }
+.pocha .hint.ok-text { color: var(--pocha-ok); }
+.pocha .hint.bad-text { color: var(--pocha-bad); }
+.pocha .email-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem; margin: 1rem 0 var(--pocha-gap); }
+.pocha .email-form .field { flex: 1 1 15rem; }
+.pocha .email-form input[type=email] { width: 100%; }
+.pocha .account-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.pocha .account-line span { min-width: 0; overflow-wrap: anywhere; }
+.pocha .card.account { padding-top: 0.7rem; padding-bottom: 0.7rem; }
+.pocha .stats-summary { margin: 0 0 0.6rem; }
+.pocha table.stats-table td.nm {
+  text-align: left; font-weight: 600; white-space: nowrap;
+  position: sticky; left: 0; background: var(--entry);
+}
+.pocha table.stats-table th:first-child { text-align: left; left: 0; z-index: 2; }
+.pocha table.stats-table tbody tr:hover td.nm { background: var(--code-bg); }
+.pocha table.stats-table tr.lead td.nm { box-shadow: inset 3px 0 0 var(--tertiary); }
+.pocha table.stats-table td.miss-split { white-space: nowrap; color: var(--secondary); }
+.pocha .saved-games { display: grid; gap: 0.4rem; }
+.pocha details.saved-game { border-radius: 8px; background: var(--code-bg); padding: 0.5rem 0.7rem; }
+.pocha details.saved-game summary {
+  cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.8rem;
+}
+.pocha details.saved-game .when { color: var(--secondary); font-size: 0.85rem; min-width: 6.5rem; }
+.pocha details.saved-game .who { font-weight: 600; }
+.pocha .saved-standings { margin: 0.6rem 0 0 1.3rem; padding: 0; font-size: 0.9rem; }
+.pocha .saved-standings li { display: flex; justify-content: space-between; gap: 1rem; max-width: 20rem; }
+
+/* Tablets and installed app */
+
+/* − / + steppers: hidden on phones, where the number keypad is quicker */
+.pocha .stepper { display: inline-flex; align-items: center; gap: 0.25rem; }
+.pocha button.step { display: none; }
+
+.pocha .game-grid { display: block; }
+
+@media (min-width: 600px) {
+  .pocha button.step {
+    display: inline-grid; place-items: center;
+    width: 2.6rem; height: 2.6rem; padding: 0;
+    font-size: 1.3rem; line-height: 1; border-radius: 50%;
+    touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  }
+  .pocha .stepper input[type=number] { width: 3.4rem; height: 2.6rem; font-size: 1.15rem; }
+  .pocha .bids-head span:not(:first-child) { width: 9.3rem; }
+  .pocha .bids, .pocha .bids-head { max-width: 40rem; }
+  .pocha .bid-row { padding: 0.45rem 0.6rem; }
+  .pocha .bid-row .who { font-size: 1.05rem; }
+  .pocha .actions button, .pocha a.button-link { padding: 0.7rem 1.2rem; }
+  .pocha a.tab { padding: 0.5rem 1.1rem; }
+}
+
+/* landscape tablets and laptops: round on the left, scoreboard on the right */
+@media (min-width: 1000px) {
+  .pocha .game-grid {
+    display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--pocha-gap); align-items: start; margin-bottom: var(--pocha-gap);
+  }
+  .pocha .game-grid > .card { margin-bottom: 0; }
+  .pocha .game-grid .standings { grid-template-columns: 1fr; }
+}
+
+/* opened from the home screen: the app fills the screen without the website around it */
+@media (display-mode: standalone) {
+  body > header.header, body > footer.footer, .post-header, .breadcrumbs { display: none !important; }
+  .pocha { margin-top: 0.5rem; }
+}
+html.pocha-installed body > header.header,
+html.pocha-installed body > footer.footer,
+html.pocha-installed .post-header { display: none !important; }
+.pocha { -webkit-tap-highlight-color: transparent; }
+
+/* Game header: the four Spanish suits fanned like a hand of cards */
+.post-header { display: none; }
+.pocha-banner {
+  display: flex; align-items: center; justify-content: center; gap: 1.6rem;
+  margin: 0.5rem 0 1rem; padding: 1.1rem 1.4rem 1rem;
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.12), transparent 65%),
+    #1f5c43;
+  box-shadow: inset 0 0 0 2px rgba(227,178,60,0.55), inset 0 0 0 6px #1f5c43, inset 0 0 0 7px rgba(227,178,60,0.3), 0 2px 8px rgba(0,0,0,0.18);
+  color: #f6e7b8;
+  overflow: hidden;
+}
+.pocha-banner .suit-hand { display: flex; align-items: flex-end; padding: 0.4rem 0.9rem 0.2rem 1.2rem; flex: 0 0 auto; }
+.pocha-banner .banner-text { min-width: 0; }
+.pocha-banner .suit-card {
+  display: grid; place-items: center;
+  width: 3.4rem; height: 4.8rem; margin-left: -0.6rem;
+  background: #fbf6e9; border: 1px solid #d8cfb8; border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transform-origin: 50% 120%;
+  transition: transform 0.2s ease;
+}
+.pocha-banner .suit-card svg { width: 72%; height: auto; display: block; }
+.pocha-banner .suit-card:nth-child(1) { transform: rotate(-15deg) translateY(4px); }
+.pocha-banner .suit-card:nth-child(2) { transform: rotate(-5deg); }
+.pocha-banner .suit-card:nth-child(3) { transform: rotate(5deg); }
+.pocha-banner .suit-card:nth-child(4) { transform: rotate(15deg) translateY(4px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(1) { transform: rotate(-20deg) translateY(-2px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(2) { transform: rotate(-7deg) translateY(-6px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(3) { transform: rotate(7deg) translateY(-6px); }
+.pocha-banner .suit-hand:hover .suit-card:nth-child(4) { transform: rotate(20deg) translateY(-2px); }
+.pocha-banner .banner-text h1 {
+  margin: 0; font-size: 2.6rem; line-height: 1; font-weight: 800; letter-spacing: 0.04em;
+  color: #f6e7b8; text-shadow: 0 2px 0 rgba(0,0,0,0.25);
+}
+.pocha-banner .banner-text p {
+  margin: 0.35rem 0 0; font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase; white-space: nowrap;
+  color: #e3b23c;
+}
+@media (min-width: 600px) {
+  .pocha-banner .suit-card { width: 4rem; height: 5.6rem; }
+  .pocha-banner .banner-text h1 { font-size: 3.2rem; }
+}
+@media (max-width: 480px) {
+  .pocha-banner { gap: 0.3rem; padding: 0.8rem 0.7rem 0.7rem; }
+  .pocha-banner .suit-hand { padding: 0.3rem 0.5rem 0.2rem 1.2rem; }
+  .pocha-banner .suit-card { width: 2.5rem; height: 3.6rem; margin-left: -0.5rem; border-radius: 6px; }
+  .pocha-banner .banner-text h1 { font-size: 1.9rem; }
+  .pocha-banner .banner-text p { font-size: 0.6rem; letter-spacing: 0.08em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pocha-banner .suit-card { transition: none; }
+}
+@media print { .pocha-banner { display: none; } }
+
+/* Light / dark switch, next to the languages */
+.pocha .bar-right { display: flex; align-items: center; gap: 0.35rem; margin-left: auto; }
+.pocha button.theme-toggle {
+  display: inline-grid; place-items: center;
+  width: 1.6rem; height: 1.6rem; padding: 0; border-radius: 50%;
+  background: transparent; color: var(--primary);
+}
+.pocha button.theme-toggle svg {
+  width: 0.85rem; height: 0.85rem;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+@media (min-width: 600px) {
+  .pocha button.theme-toggle { width: 1.75rem; height: 1.75rem; }
+}
+
+/* Language flags */
+.pocha button.lang.flag {
+  display: inline-grid; place-items: center;
+  width: 1.85rem; height: 1.4rem; padding: 0.12rem;
+  border-radius: 6px; background: transparent; border-color: transparent;
+  opacity: 0.5; filter: saturate(0.6);
+  transition: opacity 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+.pocha button.lang.flag svg {
+  display: block; width: 100%; height: 100%;
+  border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.2);
+}
+.pocha button.lang.flag:hover { opacity: 0.85; filter: none; }
+.pocha button.lang.flag.on {
+  opacity: 1; filter: none; background: transparent;
+  border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary);
+}
+@media (min-width: 600px) {
+  .pocha button.lang.flag { width: 2rem; height: 1.5rem; }
+}

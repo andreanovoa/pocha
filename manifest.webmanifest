@@ -1,0 +1,19 @@
+{
+  "id": "/pocha/",
+  "name": "Pocha — marcador",
+  "short_name": "Pocha",
+  "description": "Marcador para la pocha con la baraja española. Scoreboard for the Spanish card game pocha.",
+  "lang": "es",
+  "start_url": "/pocha/",
+  "scope": "/pocha/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1f5c43",
+  "theme_color": "#1f5c43",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "/pocha/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pocha/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pocha/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
